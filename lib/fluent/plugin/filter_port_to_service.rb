@@ -22,8 +22,6 @@ module Fluent::Plugin
     config_param :service_key, :string, default: "service"
     desc "SQLite3 database path"
     config_param :path, :string
-    desc "SQLite3 databse table name"
-    config_param :table, :string, default: "services"
 
     def initialize
       super
@@ -36,13 +34,14 @@ module Fluent::Plugin
 
     def start
       super
+      log.info "filter_port_to_service.rb - database path: #{@path}"
       @db = @db = ::SQLite3::Database.new @path
       @db.results_as_hash = true
-      @stmts = {}
+      @stmt = {}
     end
 
     def shutdown
-      @stmts.each {|k,v| v.close}
+      @stmt.each {|k,v| v.close}
       @db.close
       super
     end
@@ -58,7 +57,8 @@ module Fluent::Plugin
     end
 
     def add_service(record)
-      protocol = record[@protocol_key].downcase
+      # Reading in parameters from sources aren't always UTF-8.
+      protocol = record[@protocol_key].downcase.encode("UTF-8")
       port = record[@port_key].to_i
 
       return record unless PROTOCOLS.include?(protocol) && PORTS.include?(port)
@@ -71,13 +71,26 @@ module Fluent::Plugin
     end
 
     def get_service(protocol, port)
-      @stmts = @db.prepare SQUERY
-      @stmts.bind_param 1, protocol
-      @stmts.bind_param 2, port
+      begin
+        log.debug "filter_port_to_service.rb - protocol: #{protocol}
+          class: #{protocol.class} encoding: #{protocol.encoding}"
+        log.debug "filter_port_to_service.rb - port: #{port}
+          class: #{port.class}"
 
-      rs = @stmts.execute
-      row = rs.next
-      service = row["service"]
+        @stmt = @db.prepare SQUERY
+        @stmt.bind_param 1, protocol
+        @stmt.bind_param 2, port
+
+        rs = @stmt.execute
+        if row = rs.next
+          service = row["service"]
+        end
+
+        log.debug "filter_port_to_service.rb - Service: #{service}"
+      rescue ::SQLite3::Exception => e
+        log.error "filter_port_to_service.rb - Error: #{e}"
+      end
+
       service
     end
   end
