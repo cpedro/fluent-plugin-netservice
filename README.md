@@ -32,6 +32,7 @@ The table must be called `services` and the 3 fields must be:
 * `port` - Integer
 * `protocol` - Text
 * `service` - Text
+
 You can also add an primary key `id`, but it's only required for posterity.
 
 Example:
