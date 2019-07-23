@@ -1,3 +1,5 @@
 # fluent-plugin-port-to-service
 
-Fluentd filter plugin to map UDP/TCP ports to Network Service
+# NOTE: This is still in development, so mileage may vary!
+
+Fluentd filter plugin to map TCP/UDP ports to Network Service
