@@ -18,6 +18,32 @@ Use RubyGems to install sqlite3 first, then copy plugin over.
 
 `fluent-gem install sqlite3`
 
+## Configuration
+
+```conf
+<filter **>
+  @type port_to_service
+
+  # Required parameters
+  path          /etc/td-agent/plugin/port_to_service.db
+
+  # Optional parameters
+  port_key      port
+  protocol_key  protocol
+  service_key   service
+</filter>
+```
+
+If the following record is passed in:
+```js
+{"protocol": "tcp", "port": "22", "foo": "bar"}
+```
+
+The filtered record will be:
+```js
+{"protocol": "tcp", "port": "22", "service": "ssh", "foo": "bar"}
+```
+
 ## SQLite3 Database Setup
 
 The plugin requires a database to be built.  At this time, you will have to do
@@ -51,30 +77,3 @@ egrep -v '^\s*$|^#' /etc/services | awk '{print $1 " " $2}' | sed 's/\// /g' | a
 
 sqlite3 /etc/td-agent/plugin/port_to_service.db < port_to_service.sql
 ```
-
-## Configuration
-
-```conf
-<filter **>
-  @type port_to_service
-
-  # Required parameters
-  path          /etc/td-agent/plugin/port_to_service.db
-
-  # Optional parameters
-  port_key      port
-  protocol_key  protocol
-  service_key   service
-</filter>
-```
-
-If the following record is passed in:
-```js
-{"protocol": "tcp", "port": "22", "foo": "bar"}
-```
-
-The filtered record will be:
-```js
-{"protocol": "tcp", "port": "22", "service": "ssh", "foo": "bar"}
-```
-
