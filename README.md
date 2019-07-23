@@ -5,7 +5,7 @@
 ## Overview
 
 [Fluentd](http://fluentd.org/) filter plugin to map TCP/UDP ports to service
-names. Values are stored in a sqlite3 database for simplicity.
+names. Values are stored in a SQLite3 database for simplicity.
 
 ## Requirements
 | fluent-plugin-port-to-service | fluentd    | ruby   | sqlite3  |
@@ -41,6 +41,15 @@ Example:
 CREATE TABLE services(id INTEGER PRIMARY KEY, port INTEGER, protocol TEXT, service TEXT);
 INSERT INTO services(port, protocol, service) VALUES (22, 'tcp', 'ssh');
 ...
+```
+
+You can use the below script for now on a Linux server to parse `/etc/services`
+and use the contents to create the database.
+```sh
+echo "CREATE TABLE services(id INTEGER PRIMARY KEY, port INTEGER, protocol TEXT, service TEXT);" > port_to_service.sql
+egrep -v '^\s*$|^#' /etc/services | awk '{print $1 " " $2}' | sed 's/\// /g' | awk '{print "INSERT INTO services(port, protocol, service) VALUES (" $2 ", \"" $3 "\", \"" $1 "\");"}' >> port_to_service.sql
+
+sqlite3 /etc/td-agent/plugin/port_to_service.db < port_to_service.sql
 ```
 
 ## Configuration
