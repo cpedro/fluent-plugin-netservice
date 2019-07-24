@@ -57,10 +57,14 @@ module Fluent::Plugin
     end
 
     def add_service(record)
+      # Return if any of the fields are not found.
+      return record unless record[@protocol_key] && record[@port_key]
+
       # Reading in parameters from sources aren't always UTF-8.
       protocol = record[@protocol_key].downcase.encode("UTF-8")
       port = record[@port_key].to_i
 
+      # Return if protocol or port is out of range.
       return record unless PROTOCOLS.include?(protocol) && PORTS.include?(port)
 
       service = get_service(protocol, port)
