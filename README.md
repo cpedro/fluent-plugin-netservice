@@ -1,7 +1,5 @@
 # TCP/UDP Port to Service Name Filter for Fluentd
 
-## NOTE: This is still in development, so mileage may vary!
-
 ## Overview
 
 [Fluentd](http://fluentd.org/) filter plugin to map TCP/UDP ports to service
