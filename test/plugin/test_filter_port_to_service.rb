@@ -211,6 +211,19 @@ class PortToServiceFilterTest < Test::Unit::TestCase
     assert_equal expected, filtered
   end
 
+  test "not_found" do
+    messages = [
+      {"protocol" => "tcp", "port" => "1024"},
+      {"protocol" => "icmp", "port" => "22"}
+    ]
+    expected = [
+      {"protocol" => "tcp", "port" => "1024"},
+      {"protocol" => "icmp", "port" => "22"}
+    ]
+    filtered = filter(CONFIG, messages)
+    assert_equal expected, filtered
+  end
+
   private
 
   def filter(config, messages)
