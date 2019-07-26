@@ -35,8 +35,8 @@ class PortToServiceFilterTest < Test::Unit::TestCase
     @time = Fluent::Engine.now
   end
 
-  CONFIG = %[
-    @type port_to_service
+  BASIC_CONFIG = %[
+    @type         port_to_service
 
     # Required parameters
     path          test/test_port_to_service.db
@@ -47,197 +47,147 @@ class PortToServiceFilterTest < Test::Unit::TestCase
     service_key   service
   ]
 
-  CONFIG_WITH_DEFAULTS = %[
-    @type port_to_service
-    path          test/test_port_to_service.db
-  ]
-
-  CONFIG_DIFFERENT_OPTIONAL = %[
-    @type port_to_service
-    path          test/test_port_to_service.db
-    port_key      a_port
-    protocol_key  a_protocol
-    service_key   a_service
-  ]
-
   test "single_tcp_record" do
-    messages = [
-      {"protocol" => "tcp", "port" => "22"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "22", "service" => "ssh"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [{"protocol"=> "tcp", "port"=> "22", "foo"=> "bar"}],
+      [{"protocol"=> "tcp", "port"=> "22", "service"=> "ssh", "foo"=> "bar"}])
   end
 
   test "single_udp_record" do
-    messages = [
-      {"protocol" => "udp", "port" => "53"}
-    ]
-    expected = [
-      {"protocol" => "udp", "port" => "53", "service" => "domain"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [{"protocol"=> "udp", "port"=> "123", "foo"=> "bar"}],
+      [{"protocol"=> "udp", "port"=> "123", "service"=> "ntp", "foo"=> "bar"}])
   end
 
   test "mutliple_records" do
-    messages = [
-      {"protocol" => "tcp", "port" => "22"},
-      {"protocol" => "udp", "port" => "53"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "22", "service" => "ssh"},
-      {"protocol" => "udp", "port" => "53", "service" => "domain"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [
+        {"protocol"=> "tcp", "port"=> "22", "foo"=> "bar"},
+        {"protocol"=> "udp", "port"=> "53"}
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "22", "service"=> "ssh", "foo"=> "bar"},
+        {"protocol"=> "udp", "port"=> "53", "service"=> "domain"}
+      ])
   end
 
   test "multiple_records_same_port" do
-    messages = [
-      {"protocol" => "tcp", "port" => "123"},
-      {"protocol" => "udp", "port" => "123"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "123", "service" => "ntp"},
-      {"protocol" => "udp", "port" => "123", "service" => "ntp"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [
+        {"protocol"=> "tcp", "port"=> "161"},
+        {"protocol"=> "udp", "port"=> "161"}
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "161", "service"=> "snmp"},
+        {"protocol"=> "udp", "port"=> "161", "service"=> "snmp"}
+      ])
   end
 
   test "multiple_records_same_protocol" do
-    messages = [
-      {"protocol" => "tcp", "port" => "80"},
-      {"protocol" => "tcp", "port" => "123"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "80", "service" => "http"},
-      {"protocol" => "tcp", "port" => "123", "service" => "ntp"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [
+        {"protocol"=> "tcp", "port"=> "80"},
+        {"protocol"=> "tcp", "port"=> "123"}
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "80", "service"=> "http"},
+        {"protocol"=> "tcp", "port"=> "123", "service"=> "ntp"}
+      ])
   end
 
   test "records_with_missing_fields" do
-    messages = [
-      {"protocol" => "tcp"},
-      {"port" => "80"},
-      {"foo" => "bar"}
-    ]
-    expected = [
-      {"protocol" => "tcp"},
-      {"port" => "80"},
-      {"foo" => "bar"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
-  end
-
-  test "full_test" do
-    messages = [
-      {"protocol" => "tcp", "port" => "22"},
-      {"protocol" => "udp", "port" => "53"},
-      {"protocol" => "tcp", "port" => "80"},
-      {"protocol" => "udp", "port" => "123"},
-      {"protocol" => "tcp", "port" => "123"},
-      {"protocol" => "udp", "port" => "161"},
-      {"protocol" => "tcp", "port" => "161", "foo" => "bar"},
-      {"protocol" => "tcp"},
-      {"port" => "161"},
-      {"foo" => "bar"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "22", "service" => "ssh"},
-      {"protocol" => "udp", "port" => "53", "service" => "domain"},
-      {"protocol" => "tcp", "port" => "80", "service" => "http"},
-      {"protocol" => "udp", "port" => "123", "service" => "ntp"},
-      {"protocol" => "tcp", "port" => "123", "service" => "ntp"},
-      {"protocol" => "udp", "port" => "161", "service" => "snmp"},
-      {"protocol" => "tcp", "port" => "161", "service" => "snmp", "foo" => "bar"},
-      {"protocol" => "tcp"},
-      {"port" => "161"},
-      {"foo" => "bar"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
-  end
-
-  test "full_with_defaults" do
-    messages = [
-      {"protocol" => "tcp", "port" => "22"},
-      {"protocol" => "udp", "port" => "53"},
-      {"protocol" => "tcp", "port" => "80"},
-      {"protocol" => "udp", "port" => "123"},
-      {"protocol" => "tcp", "port" => "123"},
-      {"protocol" => "udp", "port" => "161"},
-      {"protocol" => "tcp", "port" => "161", "foo" => "bar"},
-      {"protocol" => "tcp"},
-      {"port" => "161"},
-      {"foo" => "bar"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "22", "service" => "ssh"},
-      {"protocol" => "udp", "port" => "53", "service" => "domain"},
-      {"protocol" => "tcp", "port" => "80", "service" => "http"},
-      {"protocol" => "udp", "port" => "123", "service" => "ntp"},
-      {"protocol" => "tcp", "port" => "123", "service" => "ntp"},
-      {"protocol" => "udp", "port" => "161", "service" => "snmp"},
-      {"protocol" => "tcp", "port" => "161", "service" => "snmp", "foo" => "bar"},
-      {"protocol" => "tcp"},
-      {"port" => "161"},
-      {"foo" => "bar"}
-    ]
-    filtered = filter(CONFIG_WITH_DEFAULTS, messages)
-    assert_equal expected, filtered
-  end
-
-  test "with_diff_optional" do
-    messages = [
-      {"a_protocol" => "tcp", "a_port" => "22"},
-      {"a_protocol" => "tcp", "port" => "22"},
-      {"protocol" => "tcp", "a_port" => "22"},
-      {"protocol" => "tcp", "port" => "22"}
-    ]
-    expected = [
-      {"a_protocol" => "tcp", "a_port" => "22", "a_service" => "ssh"},
-      {"a_protocol" => "tcp", "port" => "22"},
-      {"protocol" => "tcp", "a_port" => "22"},
-      {"protocol" => "tcp", "port" => "22"}
-    ]
-    filtered = filter(CONFIG_DIFFERENT_OPTIONAL, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [
+        {"protocol"=> "tcp"},
+        {"port"=> "80"},
+        {"foo"=> "bar"}
+      ],
+      [
+        {"protocol"=> "tcp"},
+        {"port"=> "80"},
+        {"foo"=> "bar"}
+      ])
   end
 
   test "not_found" do
-    messages = [
-      {"protocol" => "tcp", "port" => "1024"},
-      {"protocol" => "icmp", "port" => "22"}
-    ]
-    expected = [
-      {"protocol" => "tcp", "port" => "1024"},
-      {"protocol" => "icmp", "port" => "22"}
-    ]
-    filtered = filter(CONFIG, messages)
-    assert_equal expected, filtered
+    filter_and_test(BASIC_CONFIG,
+      [
+        {"protocol"=> "tcp", "port"=> "1024"},
+        {"protocol"=> "udp", "port"=> "22"},
+        {"protocol"=> "icmp", "port"=> "1024"}
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "1024"},
+        {"protocol"=> "udp", "port"=> "22"},
+        {"protocol"=> "icmp", "port"=> "1024"}
+      ])
+  end
+
+  test "with_defaults" do
+    filter_and_test(
+      %[
+        @type port_to_service
+        path  test/test_port_to_service.db
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "22"},
+        {"protocol"=> "udp", "port"=> "53"},
+        {"protocol"=> "udp", "port"=> "161"},
+        {"protocol"=> "tcp", "port"=> "161"},
+        {"protocol"=> "tcp"},
+        {"port"=> "161"},
+        {"foo"=> "bar"}
+      ],
+      [
+        {"protocol"=> "tcp", "port"=> "22", "service"=> "ssh"},
+        {"protocol"=> "udp", "port"=> "53", "service"=> "domain"},
+        {"protocol"=> "udp", "port"=> "161", "service"=> "snmp"},
+        {"protocol"=> "tcp", "port"=> "161", "service"=> "snmp"},
+        {"protocol"=> "tcp"},
+        {"port"=> "161"},
+        {"foo"=> "bar"}
+      ])
+  end
+
+  test "with_diff_optional" do
+    filter_and_test(
+      %[
+        @type         port_to_service
+        path          test/test_port_to_service.db
+        port_key      a_port
+        protocol_key  a_protocol
+        service_key   a_service
+      ],
+      [
+        {"a_protocol"=> "tcp", "a_port"=> "22"},
+        {"a_protocol"=> "tcp", "port"=> "22"},
+        {"protocol"=> "tcp", "a_port"=> "22"},
+        {"protocol"=> "tcp", "port"=> "22"}
+      ],
+      [
+        {"a_protocol"=> "tcp", "a_port"=> "22", "a_service"=> "ssh"},
+        {"a_protocol"=> "tcp", "port"=> "22"},
+        {"protocol"=> "tcp", "a_port"=> "22"},
+        {"protocol"=> "tcp", "port"=> "22"}
+      ])
   end
 
   private
 
-  def filter(config, messages)
+  def create_driver(config)
+    Fluent::Test::Driver::Filter.new(
+      Fluent::Plugin::PortToServiceFilter).configure(config)
+  end
+
+  def filter_and_test(config, original, expected)
     d = create_driver(config)
     yield d if block_given?
     d.run(default_tag: @tag) {
-      messages.each {|message|
+      original.each {|message|
         d.feed(@time, message)
       }
     }
-    d.filtered_records
-  end
-
-  def create_driver(conf)
-    Fluent::Test::Driver::Filter.new(Fluent::Plugin::PortToServiceFilter).configure(conf)
+    filtered = d.filtered_records
+    assert_equal expected, filtered
   end
 end
