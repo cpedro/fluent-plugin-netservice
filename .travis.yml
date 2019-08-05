@@ -9,5 +9,3 @@ before_install:
   - gem install fluentd
   - gem install sqlite3
   - sqlite3 test/test_port_to_service.db < test/test_port_to_service.sql
-
-install: true
