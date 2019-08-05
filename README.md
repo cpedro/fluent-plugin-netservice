@@ -3,7 +3,8 @@
 ## Overview
 
 [Fluentd](http://fluentd.org/) filter plugin to map TCP/UDP ports to service
-names. Values are stored in a SQLite3 database for simplicity.
+names. Values are stored in a [SQLite](https://sqlite.org/index.html) database
+for simplicity.
 
 ## Requirements
 | fluent-plugin-port-to-service | fluentd    | ruby   | sqlite3  |
