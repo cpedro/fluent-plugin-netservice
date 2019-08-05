@@ -1,4 +1,4 @@
-# TCP/UDP Port to Service Name Filter for Fluentd
+# fluent-plugin-port-to-service [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port-to-service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port-to-service)
 
 ## Overview
 
