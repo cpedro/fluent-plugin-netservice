@@ -37,12 +37,10 @@ module Fluent::Plugin
       log.info "filter_port_to_service.rb - database path: #{@path}"
       @db = @db = ::SQLite3::Database.new @path
       @db.results_as_hash = true
-      @stmt = {}
     end
 
     def shutdown
-      @stmt.each {|k,v| v.close}
-      @db.close
+      @db.close if @db
       super
     end
 
@@ -81,11 +79,11 @@ module Fluent::Plugin
         log.debug "filter_port_to_service.rb - port: #{port}
           class: #{port.class}"
 
-        @stmt = @db.prepare SQUERY
-        @stmt.bind_param 1, protocol
-        @stmt.bind_param 2, port
+        stmt = @db.prepare SQUERY
+        stmt.bind_param 1, protocol
+        stmt.bind_param 2, port
 
-        rs = @stmt.execute
+        rs = stmt.execute
         if row = rs.next
           service = row["service"]
         end
@@ -93,6 +91,8 @@ module Fluent::Plugin
         log.debug "filter_port_to_service.rb - Service: #{service}"
       rescue ::SQLite3::Exception => e
         log.error "filter_port_to_service.rb - Error: #{e}"
+      ensure
+        stmt.close if stmt
       end
 
       service
