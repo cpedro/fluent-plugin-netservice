@@ -1,11 +1,5 @@
 language: ruby
 sudo: required
-services:
-  - docker
-
-env:
-  global:
-    DOCKER_COMPOSE_VERSION: 1.18.0
 
 before_install:
   - sudo apt-get update
