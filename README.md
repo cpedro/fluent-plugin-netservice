@@ -1,4 +1,4 @@
-# fluent-plugin-port-to-service [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port-to-service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port-to-service)
+# Fluent::Plugin::PortToService [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port-to-service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port-to-service)
 
 ## Overview
 
@@ -72,15 +72,8 @@ The filtered record will be:
 
 ## SQLite3 Database Setup
 
-The plugin requires a database to be built.  At this time, you will have to do
-this manually.  You can follow the below steps.  For my implementation, I parsed
-the `/etc/services` file on a Linux machine for into a block of `INSERT`
-statements into the database.
-
-At a future date, a script *might* be provided to build the database on
-installation.
-
-The table must be called `services` and the 3 fields must be:
+The plugin requires a SQLite database to be built. The database just needs a
+single table called `services` with 3 **mandatory** columns:
 * `port` - Integer
 * `protocol` - Text
 * `service` - Text
@@ -95,13 +88,16 @@ sqlite> INSERT INTO services(port, protocol, service) VALUES (22, 'tcp', 'ssh');
 ...
 ```
 
-You can use the below script for now on a Linux server to parse `/etc/services`
-and use the contents to create the database.
-```bash
-$ echo "CREATE TABLE services(id INTEGER PRIMARY KEY, port INTEGER, protocol TEXT, service TEXT);" > port_to_service.sql
-$ egrep -v '^\s*$|^#' /etc/services | awk '{print $1 " " $2}' | sed 's/\// /g' | awk '{print "INSERT INTO services(port, protocol, service) VALUES (" $2 ", \"" $3 "\", \"" $1 "\");"}' >> port_to_service.sql
+Alternatively, there is a script provided that parses `/etc/services` and
+creates the required database with the services.  This should be run from the
+fluent-plugin-port-to-service directory and creates the the SQLite database
+at `lib/fluent/plugin/port_to_service.db`.  The SQL to create the database will
+be in `lib/fluent/plugin/port_to_service.sql`.
 
-$ sqlite3 /etc/td-agent/plugin/port_to_service.db < port_to_service.sql
+```bash
+$ pwd
+/path/to/fluent-plugin-port-to-service
+$ script/db-build.sh
 ```
 
 ## Copyright

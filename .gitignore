@@ -11,6 +11,10 @@ test/*.db
 /test/version_tmp/
 /tmp/
 
+## Created with script/db-build.sh
+lib/fluent/plugin/port_to_service.db
+lib/fluent/plugin/port_to_service.sql
+
 # Used by dotenv library to load environment variables.
 # .env
 
