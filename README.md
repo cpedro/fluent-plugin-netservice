@@ -32,18 +32,23 @@ $ brew install sqlite3
 
 ## Installation
 
-Use RubyGems to install sqlite3 first, then copy plugin over.
-install with `gem` or td-agent provided command as:
-
 ```bash
 # for fluentd
-$ gem install sqlite3
+$ gem install fluent-plugin-port_to_service
 
 # for td-agent
-$ sudo fluent-gem install sqlite3
+$ sudo fluent-gem install fluent-plugin-port_to_service
 
 # for td-agent2
-$ sudo td-agent-gem install sqlite3
+$ sudo td-agent-gem install fluent-plugin-port_to_service
+```
+
+After installation, you can use the built-in executable to create a database
+based on the `/etc/services` file on host.  You have to give the script one
+parameter, where you want the database to be created.
+
+```bash
+$ fluent-plugin-port_to_service_build_db /etc/td-agent/plugin/port_to_service.db
 ```
 
 ## Configuration
@@ -91,15 +96,12 @@ sqlite> INSERT INTO services(port, protocol, service) VALUES (22, 'tcp', 'ssh');
 ```
 
 Alternatively, there is a script provided that parses `/etc/services` and
-creates the required database with the services.  This should be run from the
-fluent-plugin-port_to_service directory and creates the the SQLite database
-at `lib/fluent/plugin/port_to_service.db`.  The SQL to create the database will
-be in `lib/fluent/plugin/port_to_service.sql`.
+creates the required database with the services.  You have to specify one
+command line parameter, and that is the file path you wish to install the
+database to.
 
 ```bash
-$ pwd
-/path/to/fluent-plugin-port_to_service
-$ script/db-build.sh
+$ fluent-plugin-port_to_service_build_db /etc/td-agent/plugin/port_to_service.db
 ```
 
 ## Copyright
