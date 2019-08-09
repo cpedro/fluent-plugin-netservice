@@ -1,4 +1,5 @@
-# Fluent::Plugin::PortToService [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port_to_service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port_to_service)
+# Fluent::Plugin::PortToService
+[![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port_to_service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port_to_service)[![Gem Version](https://badge.fury.io/rb/fluent-plugin-port_to_service.svg)](https://badge.fury.io/rb/fluent-plugin-port_to_service)
 
 ## Overview
 
