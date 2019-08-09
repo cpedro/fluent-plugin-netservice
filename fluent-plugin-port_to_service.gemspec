@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Chris Pedro"]
   spec.email   = ["chris@thepedros.com"]
 
-  spec.summary       = %q{Filter Fluentd to include TCP/UDP services.}
-  spec.description   = %q{Filter Fluentd to include TCP/UDP services.}
+  spec.summary       = %q{Fluentd filter plugin to include TCP/UDP services based on port information.}
+  spec.description   = %q{Filter plugin to include TCP/UDP services.}
   spec.homepage      = "https://github.com/cpedro/fluent-plugin-port_to_service.git"
   spec.license       = "Unlicense"
 
@@ -20,9 +20,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = test_files
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "> 1.14"
-  spec.add_development_dependency "rake", "> 12.0"
-  spec.add_development_dependency "test-unit", "> 3.0"
+  spec.add_development_dependency "bundler", "~> 1.14"
+  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "test-unit", "~> 3.0"
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
-  spec.add_runtime_dependency "sqlite3", ">= 1.3.7"
+  spec.add_runtime_dependency "sqlite3", "~> 1.3"
 end
