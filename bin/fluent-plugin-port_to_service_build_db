@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+require 'sqlite3'
+
+services_f = "/etc/services"
+db_path = ARGV[0]
+
+# Sanity checks
+raise "Must provide database filename to write to." unless db_path
+raise "File #{services_f} must exist on system." unless File.file?(services_f)
+
+# Delete database if it exists, and create a new one.
+File.delete(db_path) if File.file?(db_path)
+db = ::SQLite3::Database.new db_path
+db.execute <<SQL
+CREATE TABLE services(
+  id INTEGER PRIMARY KEY,
+  port INTEGER,
+  protocol TEXT,
+  service TEXT);
+SQL
+
+insert = "INSERT INTO services(port, protocol, service) VALUES (?, ?, ?);"
+# Loop through services file and insert entries into database.
+File.open(services_f, "r") do |file_handle|
+  file_handle.each_line do |line|
+    next if line =~ /^[#\s]/ or line =~ /^\s*$/
+    service, prot_port, *rest = line.split(/\s+/)
+    port, protocol = prot_port.split(/\//)
+
+    stmt = db.prepare insert
+    stmt.bind_param 1, port
+    stmt.bind_param 2, protocol
+    stmt.bind_param 3, service
+    stmt.execute
+    stmt.close if stmt
+  end
+end
+
+db.close if db

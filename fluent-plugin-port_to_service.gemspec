@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name    = "fluent-plugin-port_to_service"
-  spec.version = "0.1.1"
+  spec.version = "0.1.3"
   spec.authors = ["Chris Pedro"]
   spec.email   = ["chris@thepedros.com"]
 
@@ -25,4 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "test-unit", "~> 3.0"
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
   spec.add_runtime_dependency "sqlite3", "~> 1.3"
+
+  spec.executables << "fluent-plugin-port_to_service_build_db"
 end

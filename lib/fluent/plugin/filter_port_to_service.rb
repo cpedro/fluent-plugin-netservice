@@ -35,7 +35,7 @@ module Fluent::Plugin
     def start
       super
       log.info "filter_port_to_service.rb - database path: #{@path}"
-      @db = @db = ::SQLite3::Database.new @path
+      @db = ::SQLite3::Database.new @path
       @db.results_as_hash = true
     end
 
