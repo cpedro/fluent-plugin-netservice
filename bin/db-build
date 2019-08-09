@@ -4,7 +4,7 @@ dir="lib/fluent/plugin"
 
 set -e
 
-[ "${PWD##*/}" == "fluent-plugin-port-to-service" ] || exit 1
+[ "${PWD##*/}" == "fluent-plugin-port_to_service" ] || exit 1
 [ -f /etc/services ] || exit 1
 
 [ -f ${dir}/port_to_service.db ] && rm -f ${dir}/port_to_service.db

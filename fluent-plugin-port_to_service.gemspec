@@ -2,14 +2,14 @@ lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
-  spec.name    = "fluent-plugin-port-to-service"
+  spec.name    = "fluent-plugin-port_to_service"
   spec.version = "0.0.9"
   spec.authors = ["Chris Pedro"]
   spec.email   = ["chris@thepedros.com"]
 
   spec.summary       = %q{Filter Fluentd to include TCP/UDP services.}
   spec.description   = %q{Filter Fluentd to include TCP/UDP services.}
-  spec.homepage      = "https://github.com/cpedro/fluent-plugin-port-to-service.git"
+  spec.homepage      = "https://github.com/cpedro/fluent-plugin-port_to_service.git"
   spec.license       = "Unlicense"
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|

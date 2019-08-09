@@ -1,4 +1,4 @@
-# Fluent::Plugin::PortToService [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port-to-service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port-to-service)
+# Fluent::Plugin::PortToService [![Build Status](https://travis-ci.org/cpedro/fluent-plugin-port_to_service.svg?branch=master)](https://travis-ci.org/cpedro/fluent-plugin-port_to_service)
 
 ## Overview
 
@@ -7,7 +7,7 @@ names. Values are stored in a [SQLite](https://sqlite.org/index.html) database
 for simplicity.
 
 ## Requirements
-| fluent-plugin-port-to-service | fluentd    | ruby   | sqlite3  |
+| fluent-plugin-port_to_service | fluentd    | ruby   | sqlite3  |
 | ----------------------------- | ---------- | ------ | -------- |
 | > 0.0.9                       | >= v0.14.0 | >= 2.1 | >= 1.3.7 |
 
@@ -90,13 +90,13 @@ sqlite> INSERT INTO services(port, protocol, service) VALUES (22, 'tcp', 'ssh');
 
 Alternatively, there is a script provided that parses `/etc/services` and
 creates the required database with the services.  This should be run from the
-fluent-plugin-port-to-service directory and creates the the SQLite database
+fluent-plugin-port_to_service directory and creates the the SQLite database
 at `lib/fluent/plugin/port_to_service.db`.  The SQL to create the database will
 be in `lib/fluent/plugin/port_to_service.sql`.
 
 ```bash
 $ pwd
-/path/to/fluent-plugin-port-to-service
+/path/to/fluent-plugin-port_to_service
 $ script/db-build.sh
 ```
 
