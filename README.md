@@ -5,8 +5,15 @@
 ## Overview
 
 [Fluentd](http://fluentd.org/) filter plugin to map TCP/UDP ports to service
-names. Values are stored in a [SQLite](https://sqlite.org/index.html) database
-for simplicity.
+names. This is useful for parsing firewall logs and similar network based
+information, by adding easy to read service information into your logs based on
+TCP/UDP port information. The lookup values are stored in a
+[SQLite](https://sqlite.org/index.html) database file on the local disk for
+simplicity and perfomance.
+
+This package includes a Ruby script that will build the SQLite database based
+on the local `/etc/services` file.  However, you're free to build the database
+on your own.
 
 ## Requirements
 | fluent-plugin-port_to_service | fluentd    | ruby   | sqlite3  |
@@ -79,8 +86,17 @@ The filtered record will be:
 
 ## SQLite3 Database Setup
 
-The plugin requires a SQLite database to be built. The database just needs a
-single table called `services` with 3 **mandatory** columns:
+The plugin requires a SQLite database to be built. There is a script provided
+that parses `/etc/services` and creates the required database with the services.
+You have to specify one command line parameter, and that is the file path you
+wish to install the database to.
+
+```bash
+$ fluent-plugin-port_to_service_build_db /etc/td-agent/plugin/port_to_service.db
+```
+
+Alternatively, you can build your own database. It just needs a single table
+that **must** be called `services` with 3 **mandatory** columns:
 * `port` - Integer
 * `protocol` - Text
 * `service` - Text
@@ -93,15 +109,6 @@ $ sqlite3 /etc/td-agent/plugin/port_to_service.db
 sqlite> CREATE TABLE services(id INTEGER PRIMARY KEY, port INTEGER, protocol TEXT, service TEXT);
 sqlite> INSERT INTO services(port, protocol, service) VALUES (22, 'tcp', 'ssh');
 ...
-```
-
-Alternatively, there is a script provided that parses `/etc/services` and
-creates the required database with the services.  You have to specify one
-command line parameter, and that is the file path you wish to install the
-database to.
-
-```bash
-$ fluent-plugin-port_to_service_build_db /etc/td-agent/plugin/port_to_service.db
 ```
 
 ## Copyright
